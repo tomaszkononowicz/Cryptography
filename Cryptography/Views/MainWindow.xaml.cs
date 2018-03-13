@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Cryptography
+namespace Cryptography.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -24,5 +24,6 @@ namespace Cryptography
         {
             InitializeComponent();
         }
+
     }
 }
