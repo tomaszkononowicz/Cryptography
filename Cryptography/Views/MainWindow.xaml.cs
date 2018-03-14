@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cryptography.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +24,18 @@ namespace Cryptography.Views
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainViewModel();
         }
 
+        private void buttonDeleteUser_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Operacja zakończyła się niepowodzeniem", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            var openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            var result = openFileDialog.ShowDialog();
+
+            var folderdialog = new System.Windows.Forms.FolderBrowserDialog();
+            var folder = folderdialog.ShowDialog();
+        }
     }
 }

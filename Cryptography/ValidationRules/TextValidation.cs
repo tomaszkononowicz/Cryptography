@@ -9,7 +9,7 @@ using System.Windows.Controls;
 
 namespace Cryptography.ValidationRules
 {
-    class PasswordValidation : ValidationRule
+    class TextValidation : ValidationRule
     {
         public int? MinLength { get; set; }
         public int? MaxLength { get; set; }
