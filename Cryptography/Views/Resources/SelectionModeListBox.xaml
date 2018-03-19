@@ -1,15 +1,18 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Cryptography.Views.Resources">
-    <Style TargetType="{x:Type GroupBox}" x:Key="HideGroupBox">
-        <Setter Property="Visibility" Value="Visible" />
+
+    <Style TargetType="{x:Type ListBox}" x:Key="SelectionModeListBox">
+        <Setter Property="SelectionMode" Value="Extended" />
         <Style.Triggers>
             <MultiDataTrigger>
-                <Setter Property="Visibility" Value="Hidden" />
+                <Setter Property="SelectionMode" Value="Single" />
                 <MultiDataTrigger.Conditions>
                     <Condition Binding="{Binding ElementName=radioButtonEncrypt, Path=(IsChecked)}" Value="false" />
                 </MultiDataTrigger.Conditions>
             </MultiDataTrigger>
         </Style.Triggers>
     </Style>
+
+
 </ResourceDictionary>

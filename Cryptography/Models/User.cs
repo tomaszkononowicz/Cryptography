@@ -10,6 +10,12 @@ namespace Cryptography.Models
     {
         public string Login { get; set; }
         private string login;
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set { isSelected = value; }
+        }
+        private bool isSelected;
 
         public User(string login)
         {
@@ -18,5 +24,5 @@ namespace Cryptography.Models
 
     }
 
- 
+
 }

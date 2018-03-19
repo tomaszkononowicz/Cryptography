@@ -20,5 +20,18 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <Style x:Key="textBoxErrorEncrypt" TargetType="TextBox">
+        <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+        <Style.Triggers>
+            <MultiDataTrigger>
+                <Setter Property="ToolTip" Value="To pole jest opcjonalne"/>
+                <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding ElementName=radioButtonEncrypt, Path=(IsChecked)}" Value="false" />
+                </MultiDataTrigger.Conditions>
+            </MultiDataTrigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>
 

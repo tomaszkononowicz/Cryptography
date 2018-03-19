@@ -16,7 +16,13 @@
     <Grid>
 
         <Label x:Name="labelChooseUser" Content="Wybierz użytkownika:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,12,0,0" Width="145" Padding="5,0"/>
-        <ListBox x:Name="listBoxUsers" HorizontalAlignment="Left" Height="229" Margin="10,30,0,0" VerticalAlignment="Top" Width="187" ItemsSource="{Binding Users}">
+        <ListBox x:Name="listBoxUsers" HorizontalAlignment="Left" Height="229" Margin="10,30,0,0" VerticalAlignment="Top" Width="187" ItemsSource="{Binding Users, Mode=TwoWay}" Style="{StaticResource SelectionModeListBox}">
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="IsSelected" Value="{Binding Mode=TwoWay, Path=IsSelected}"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Login}"/>
@@ -272,29 +278,29 @@
         </Grid>
         <Grid Margin="6,277,0,0" HorizontalAlignment="Left" Width="478" Height="134" VerticalAlignment="Top">
             <Label x:Name="labelSourceFile" Content="Wybierz plik źródłowy:" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,0"/>
-            <TextBox x:Name="textBoxSourceFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="292" Margin="0,18,0,0"  Style="{StaticResource textBoxError}">
+            <TextBox x:Name="textBoxSourceFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="292" Margin="0,18,0,0"  Style="{StaticResource textBoxError}" IsHitTestVisible="True" IsReadOnly="True">
                 <Binding Path="SourceFile" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
                         <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" />
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
-            <Button x:Name="buttonBrowseSourceFile" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,18,0,0" VerticalAlignment="Top" Width="86" Height="23"/>
+            <Button x:Name="buttonBrowseSourceFile" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,18,0,0" VerticalAlignment="Top" Width="86" Height="23" Click="buttonBrowseSourceFile_Click"/>
             <Label x:Name="labelFileSize" Content="{Binding FileSize}" HorizontalAlignment="Left" Margin="388,15,0,0" VerticalAlignment="Top" Width="90"/>
             <Label x:Name="labelDestinationFolder" Content="Wybierz folder docelowy:" HorizontalAlignment="Left" Margin="0,46,0,0" VerticalAlignment="Top" Padding="5,0"/>
-            <TextBox x:Name="textBoxDestinationFolder" HorizontalAlignment="Left" Height="23" Margin="0,64,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxError}">
+            <TextBox x:Name="textBoxDestinationFolder" HorizontalAlignment="Left" Height="23" Margin="0,64,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxError}" IsReadOnly="True">
                 <Binding Path="DestinationFolder" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
                         <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" />
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
-            <Button x:Name="buttonBrowseDestinationFolder" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,64,0,0" VerticalAlignment="Top" Width="86" Height="23"/>
+            <Button x:Name="buttonBrowseDestinationFolder" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,64,0,0" VerticalAlignment="Top" Width="86" Height="23" Click="buttonBrowseDestinationFolder_Click"/>
             <Label x:Name="labelOutputFilename" Content="Wpisz nazwę pliku wyjściowego:" HorizontalAlignment="Left" Margin="0,92,0,0" VerticalAlignment="Top" Padding="5,0"/>
-            <TextBox x:Name="textBoxOutputFilename" HorizontalAlignment="Left" Height="24" Margin="0,110,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxError}">
+            <TextBox x:Name="textBoxOutputFilename" HorizontalAlignment="Left" Height="24" Margin="0,110,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxErrorEncrypt}">
                 <Binding Path="OutputFilename" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
-                        <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" />
+                        <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue"/>
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
@@ -335,14 +341,32 @@
             </Button.Template>
             <Button.Style>
                 <Style TargetType="Button">
-                    <Setter Property="IsEnabled" Value="false" />
+                    <Setter Property="IsEnabled" Value="true" />
                     <Style.Triggers>
                         <MultiDataTrigger>
-                            <Setter Property="IsEnabled" Value="true" />
+                        <Setter Property="IsEnabled" Value="false" />
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding ElementName=textBoxSourceFile, Path=(Validation.HasError)}" Value="true" />
+                        </MultiDataTrigger.Conditions>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <Setter Property="IsEnabled" Value="false" />
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding ElementName=textBoxDestinationFolder, Path=(Validation.HasError)}" Value="true" />
+                        </MultiDataTrigger.Conditions>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <Setter Property="IsEnabled" Value="false" />
                             <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=textBoxSourceFile, Path=(Validation.HasError)}" Value="false" />
-                                <Condition Binding="{Binding ElementName=textBoxDestinationFolder, Path=(Validation.HasError)}" Value="false" />
-                                <Condition Binding="{Binding ElementName=textBoxOutputFilename, Path=(Validation.HasError)}" Value="false" />
+                                <Condition Binding="{Binding ElementName=radioButtonEncrypt, Path=(IsChecked)}" Value="true" />
+                                <Condition Binding="{Binding ElementName=textBoxOutputFilename, Path=(Validation.HasError)}" Value="true" />
+                            </MultiDataTrigger.Conditions>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <Setter Property="IsEnabled" Value="false" />
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ElementName=listBoxUsers, Path=(SelectedIndex)}" Value="-1" />
+                                
                             </MultiDataTrigger.Conditions>
                         </MultiDataTrigger>
                     </Style.Triggers>

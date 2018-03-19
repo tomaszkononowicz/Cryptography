@@ -59,11 +59,11 @@ namespace Cryptography.ViewModel
             Users.Add(new User("Użytkownik 3"));
             ApplicationMode = 1;
             CryptBlockMode = 1;
-            SourceFile = "C:\\Pulpit\\DoPrzerobienia.txt";
+            SourceFile = "C:\\Users\\Tomasz\\Desktop\\Projek1 - dokumentacja";
             DestinationFolder = "C:\\Pulpit";
             OutputFilename = "Przerobiony";          
             FileSize = "124 MB";
-            ApplicationStatus = "Szyfrowanie";
+            ApplicationStatus = "Deszyfrowanie";
             CryptProgress = 28;
 
 
