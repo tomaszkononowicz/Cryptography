@@ -32,7 +32,7 @@ namespace Cryptography.ValidationRules
                 else if (i > (MaxLength ?? i))
                     return new ValidationResult(false, "Wprowadzony tekst jest zbyt długi, maksymalna liczba znaków: " + MaxLength);
                 else if (Pattern != null && !Regex.IsMatch(value.ToString(), Pattern))
-                    return new ValidationResult(false, "Wprowadzony tekst nie pasuje do wzorca: " + PatternErrorMessage);
+                    return new ValidationResult(false, PatternErrorMessage);
                 else
                     return ValidationResult.ValidResult;
             }

@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:Cryptography"
         xmlns:rule="clr-namespace:Cryptography.ValidationRules"
         xmlns:converters="clr-namespace:Cryptography.Converters"
+        xmlns:commons="clr-namespace:Cryptography.Common"
         mc:Ignorable="d"
-        Title="Cryptography" Height="565.069" Width="505.566"
+        Title="Cryptography" Height="640.403" Width="505.566"
         Icon="Resources/if_file_locked_66769.png">
     <Window.Resources>
         <converters:RadioButtonToIntConverter x:Key="RadioButtonToIntConverter" />
@@ -15,9 +16,22 @@
 
     <Grid>
 
-        <Label x:Name="labelChooseUser" Content="Wybierz użytkownika:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,12,0,0" Width="145" Padding="5,0"/>
-        <ListBox x:Name="listBoxUsers" HorizontalAlignment="Left" Height="229" Margin="10,30,0,0" VerticalAlignment="Top" Width="187" ItemsSource="{Binding Users, Mode=TwoWay}" Style="{StaticResource SelectionModeListBox}">
-
+        <Label x:Name="labelChooseUser" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,12,0,0" Padding="5,0">
+            <Label.Style>
+                <Style TargetType="{x:Type Label}">
+                    <Setter Property="Content" Value="Wybierz odbiorców: " />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <Setter Property="Content" Value="Wybierz użytkownika deszyfrującego: " />
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ElementName=radioButtonEncrypt, Path=(IsChecked)}" Value="false" />
+                            </MultiDataTrigger.Conditions>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <ListBox x:Name="listBoxUsers" HorizontalAlignment="Left" Height="229" Margin="10,30,0,0" VerticalAlignment="Top" Width="187" ItemsSource="{Binding ListBoxUsers, Mode=OneWay}" Style="{StaticResource SelectionModeListBox}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
                     <Setter Property="IsSelected" Value="{Binding Mode=TwoWay, Path=IsSelected}"/>
@@ -40,12 +54,12 @@
             <TextBox x:Name="textBoxPassword" Height="23" Margin="27,56,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="118"  Style="{StaticResource textBoxError}">
                 <Binding Path="Password" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
-                        <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" />
+                        <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&amp;])[A-Za-z\d$@$!%*?&amp;]{8,}" PatternErrorMessage="Hasło musi zawierać: wielką i małą literę, cyfrę, znak specjalny" MinLength="8"/>
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
 
-            <Button x:Name="buttonAddUser" Content="Dodaj" Margin="0,84,0,-3" VerticalAlignment="Top" Height="23" HorizontalAlignment="Left" Width="75">
+            <Button x:Name="buttonAddUser" Content="Dodaj" Margin="0,84,0,-3" VerticalAlignment="Top" Height="23" HorizontalAlignment="Left" Width="75" Command="{Binding AddUser}">
                 <Button.Template>
                     <ControlTemplate TargetType="{x:Type ButtonBase}">
                         <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
@@ -93,7 +107,7 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Button x:Name="buttonDeleteUser" Content="Usuń" VerticalAlignment="Top" Height="23" HorizontalAlignment="Left" Width="75" Margin="0,0,0,0" Click="buttonDeleteUser_Click">
+            <Button x:Name="buttonDeleteUser" Content="Usuń" VerticalAlignment="Top" Height="23" HorizontalAlignment="Left" Width="75" Margin="0,0,0,0" Command="{Binding DeleteUser}">
                 <Button.Template>
                     <ControlTemplate TargetType="{x:Type ButtonBase}">
                         <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
@@ -135,7 +149,7 @@
 
         <Grid Margin="202,142,0,0" Height="117" VerticalAlignment="Top" HorizontalAlignment="Left" Width="268">
             <RadioButton x:Name="radioButtonEncrypt" Content="Szyfrowanie" HorizontalAlignment="Left" VerticalAlignment="Top" Height="52" Width="159" VerticalContentAlignment="Center" Margin="0,10,0,0" 
-                         GroupName="ApplicationMode" IsChecked="{Binding ApplicationMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter=1}">
+                         GroupName="ApplicationMode" IsChecked="{Binding ApplicationMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter={x:Static commons:ApplicationModeEnum.Encrypt}}">
                 <RadioButton.Template>
                     <ControlTemplate TargetType="{x:Type RadioButton}">
                         <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True">
@@ -197,7 +211,7 @@
                 </RadioButton.Template>
             </RadioButton>
             <RadioButton x:Name="radioButtonDecrypt" Content="Deszyfrowanie" HorizontalAlignment="Left" VerticalAlignment="Top" Height="52" Width="159" VerticalContentAlignment="Center" Margin="0,65,0,0"
-                         GroupName="ApplicationMode" IsChecked="{Binding ApplicationMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter=2}">
+                         GroupName="ApplicationMode" IsChecked="{Binding ApplicationMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter={x:Static commons:ApplicationModeEnum.Decrypt}}">
                 <RadioButton.Template>
                     <ControlTemplate TargetType="{x:Type RadioButton}">
                         <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True">
@@ -258,46 +272,70 @@
                     </ControlTemplate>
                 </RadioButton.Template>
             </RadioButton>
+            <GroupBox Margin="147,39,0,10" Style="{StaticResource ResourceKey=ShowGroupBox}">
+                <StackPanel>
+                    <Label Padding="3">
+                        <TextBlock TextWrapping="Wrap" Text="Hasło użytkownika deszyfrującego:"/>
 
-            <GroupBox x:Name="groupBox" Header="Tryb pracy szyfru" HorizontalAlignment="Left" VerticalAlignment="Top" Height="107" Width="109" Margin="159,10,0,0" Style="{StaticResource ResourceKey=HideGroupBox}">
+                    </Label>
+                    <TextBox x:Name="textBoxDecryptPassword" Height="22" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="106"  Style="{StaticResource textBoxError}">
+                        <Binding Path="DecryptPassword" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&amp;])[A-Za-z\d$@$!%*?&amp;]{8,}" PatternErrorMessage="Hasło musi zawierać: wielką i małą literę, cyfrę, znak specjalny" MinLength="8"/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox x:Name="groupBox" Header="Tryb pracy szyfru" HorizontalAlignment="Left" VerticalAlignment="Top" Height="107" Width="109" Margin="159,-14,0,0"
+                Style="{StaticResource ResourceKey=HideGroupBox}">
 
 
                 <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
                     <RadioButton x:Name="radioButtonECB" Content="ECB" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"
-                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter=1}"/>
+                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter={x:Static commons:CryptBlockModeEnum.ECB}}"/>
                     <RadioButton x:Name="radioButtonCBC" Content="CBC" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top"
-                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter=2}"/>
+                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter={x:Static commons:CryptBlockModeEnum.CBC}}"/>
                     <RadioButton x:Name="radioButtonCFB" Content="CFB" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top"
-                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter=3}"/>
+                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter={x:Static commons:CryptBlockModeEnum.CFB}}"/>
                     <RadioButton x:Name="radioButtonOFB" Content="OFB" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top"
-                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter=4}"/>
+                                 GroupName="CryptBlockMode" IsChecked="{Binding CryptBlockMode, Converter={StaticResource RadioButtonToIntConverter}, ConverterParameter={x:Static commons:CryptBlockModeEnum.OFB}}"/>
                 </Grid>
 
 
             </GroupBox>
+            <GroupBox x:Name="groupBoxFeedbackSizes" Header="Tryb pracy szyfru" HorizontalAlignment="Left" VerticalAlignment="Top" Height="107" Width="109" Margin="159,-14,0,0" Style="{StaticResource ResourceKey=HideGroupBoxCFBOFB}">
+                <Grid>
+                    <Label x:Name="labelFeedbackSize" Content="Długość podbloku" HorizontalAlignment="Left" Margin="-2,92,0,-26" VerticalAlignment="Top" Height="19" RenderTransformOrigin="0.5,0.5" Width="99" Padding="0"/>
+                    <ComboBox x:Name="comboBoxFeedbackSize" HorizontalAlignment="Left" Margin="6,111,0,-50" VerticalAlignment="Top" Width="49" SelectedValue="{Binding FeedbackSize}" ItemsSource="{Binding FeedbackSizes}" Height="24"/>
+                    <Label x:Name="labelBitow" Content="bitów" HorizontalAlignment="Left" Margin="60,116,-2,-50" VerticalAlignment="Top" Height="19" RenderTransformOrigin="0.5,0.5" Width="39" Padding="0"/>
+                </Grid>
+            </GroupBox>
+
+
         </Grid>
-        <Grid Margin="6,277,0,0" HorizontalAlignment="Left" Width="478" Height="134" VerticalAlignment="Top">
+        <Grid Margin="6,289,0,0" HorizontalAlignment="Left" Width="478" Height="195" VerticalAlignment="Top">
             <Label x:Name="labelSourceFile" Content="Wybierz plik źródłowy:" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,0"/>
-            <TextBox x:Name="textBoxSourceFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="292" Margin="0,18,0,0"  Style="{StaticResource textBoxError}" IsHitTestVisible="True" IsReadOnly="True">
+            <TextBox x:Name="textBoxSourceFile" HorizontalAlignment="Left" Height="50" TextWrapping="Wrap" VerticalAlignment="Top" Width="292" Margin="0,18,0,0"  Style="{StaticResource textBoxError}" IsHitTestVisible="True" IsReadOnly="True">
                 <Binding Path="SourceFile" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
                         <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" />
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
-            <Button x:Name="buttonBrowseSourceFile" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,18,0,0" VerticalAlignment="Top" Width="86" Height="23" Click="buttonBrowseSourceFile_Click"/>
+            <Button x:Name="buttonBrowseSourceFile" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,18,0,0" VerticalAlignment="Top" Width="86" Height="23" Command="{Binding BrowseSourceFile}"/>
             <Label x:Name="labelFileSize" Content="{Binding FileSize}" HorizontalAlignment="Left" Margin="388,15,0,0" VerticalAlignment="Top" Width="90"/>
-            <Label x:Name="labelDestinationFolder" Content="Wybierz folder docelowy:" HorizontalAlignment="Left" Margin="0,46,0,0" VerticalAlignment="Top" Padding="5,0"/>
-            <TextBox x:Name="textBoxDestinationFolder" HorizontalAlignment="Left" Height="23" Margin="0,64,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxError}" IsReadOnly="True">
+            <Label x:Name="labelDestinationFolder" Content="Wybierz folder docelowy:" HorizontalAlignment="Left" Margin="0,73,0,0" VerticalAlignment="Top" Padding="5,0"/>
+            <TextBox x:Name="textBoxDestinationFolder" HorizontalAlignment="Left" Height="50" Margin="0,91,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxError}" IsReadOnly="True">
                 <Binding Path="DestinationFolder" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
                         <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue" />
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
-            <Button x:Name="buttonBrowseDestinationFolder" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,64,0,0" VerticalAlignment="Top" Width="86" Height="23" Click="buttonBrowseDestinationFolder_Click"/>
-            <Label x:Name="labelOutputFilename" Content="Wpisz nazwę pliku wyjściowego:" HorizontalAlignment="Left" Margin="0,92,0,0" VerticalAlignment="Top" Padding="5,0"/>
-            <TextBox x:Name="textBoxOutputFilename" HorizontalAlignment="Left" Height="24" Margin="0,110,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxErrorEncrypt}">
+            <Button x:Name="buttonBrowseDestinationFolder" Content="Przeglądaj..." HorizontalAlignment="Left" Margin="297,91,0,0" VerticalAlignment="Top" Width="86" Height="23" Command="{Binding BrowseDestinationFolder}"/>
+            <Label x:Name="labelOutputFilename" Content="Wpisz nazwę pliku wyjściowego:" HorizontalAlignment="Left" Margin="0,146,0,0" VerticalAlignment="Top" Padding="5,0"/>
+            <TextBox x:Name="textBoxOutputFilename" HorizontalAlignment="Left" Height="24" Margin="0,164,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="292"  Style="{StaticResource textBoxErrorEncrypt}">
                 <Binding Path="OutputFilename" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
                         <rule:TextValidation ValidatesOnTargetUpdated="True" ValidationStep="RawProposedValue"/>
@@ -306,7 +344,7 @@
             </TextBox>
 
         </Grid>
-        <Button x:Name="buttonStart" Content="Start" Margin="208,426,0,0" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="75">
+        <Button x:Name="buttonStart" Content="Start" Margin="208,497,0,0" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="75" Command="{Binding Start}">
             <Button.Template>
                 <ControlTemplate TargetType="{x:Type ButtonBase}">
                     <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
@@ -344,16 +382,22 @@
                     <Setter Property="IsEnabled" Value="true" />
                     <Style.Triggers>
                         <MultiDataTrigger>
-                        <Setter Property="IsEnabled" Value="false" />
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding ElementName=textBoxSourceFile, Path=(Validation.HasError)}" Value="true" />
-                        </MultiDataTrigger.Conditions>
+                            <Setter Property="IsEnabled" Value="false" />
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ElementName=textBoxSourceFile, Path=(Validation.HasError)}" Value="true" />
+                            </MultiDataTrigger.Conditions>
                         </MultiDataTrigger>
                         <MultiDataTrigger>
                             <Setter Property="IsEnabled" Value="false" />
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding ElementName=textBoxDestinationFolder, Path=(Validation.HasError)}" Value="true" />
-                        </MultiDataTrigger.Conditions>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding StartCanExecute}" Value="false" />
+                            </MultiDataTrigger.Conditions>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <Setter Property="IsEnabled" Value="false" />
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ElementName=textBoxDestinationFolder, Path=(Validation.HasError)}" Value="true" />
+                            </MultiDataTrigger.Conditions>
                         </MultiDataTrigger>
                         <MultiDataTrigger>
                             <Setter Property="IsEnabled" Value="false" />
@@ -365,16 +409,23 @@
                         <MultiDataTrigger>
                             <Setter Property="IsEnabled" Value="false" />
                             <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ElementName=radioButtonDecrypt, Path=(IsChecked)}" Value="true" />
+                                <Condition Binding="{Binding ElementName=textBoxDecryptPassword, Path=(Validation.HasError)}" Value="true" />
+                            </MultiDataTrigger.Conditions>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <Setter Property="IsEnabled" Value="false" />
+                            <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=listBoxUsers, Path=(SelectedIndex)}" Value="-1" />
-                                
+
                             </MultiDataTrigger.Conditions>
                         </MultiDataTrigger>
                     </Style.Triggers>
                 </Style>
             </Button.Style>
         </Button>
-        <ProgressBar x:Name="progressBarCrypt" Margin="10,464,10,0" Height="25" VerticalAlignment="Top" Value="{Binding CryptProgress}"/>
-        <Label x:Name="labelApplicationStatus" Content="{Binding ApplicationStatus}" Margin="10,494,10,0" Height="27" VerticalAlignment="Top"/>
+        <ProgressBar x:Name="progressBarCrypt" Margin="10,535,10,0" Height="25" VerticalAlignment="Top" Value="{Binding CryptProgress}"/>
+        <Label x:Name="labelApplicationStatus" Content="{Binding ApplicationStatus}" Margin="10,565,10,0" Height="27" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

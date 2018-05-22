@@ -8,6 +8,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Views/Resources/TextBoxError.xaml"/>
                 <ResourceDictionary Source="Views/Resources/HideGroupBox.xaml"/>
+                <ResourceDictionary Source="Views/Resources/HideGroupBoxCFBOFB.xaml"/>
+                <ResourceDictionary Source="Views/Resources/ShowGroupBox.xaml"/>
                 <ResourceDictionary Source="Views/Resources/SelectionModeListBox.xaml"/>
                 
             </ResourceDictionary.MergedDictionaries>

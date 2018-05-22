@@ -36,16 +36,5 @@ namespace Cryptography.Views
             
         }
 
-        private void buttonBrowseSourceFile_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            var result = openFileDialog.ShowDialog();
-        }
-
-        private void buttonBrowseDestinationFolder_Click(object sender, RoutedEventArgs e)
-        {
-            var folderdialog = new System.Windows.Forms.FolderBrowserDialog();
-            var folder = folderdialog.ShowDialog();
-        }
     }
 }
